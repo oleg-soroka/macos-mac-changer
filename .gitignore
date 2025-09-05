@@ -1,0 +1,39 @@
+# Временные файлы macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Временные файлы скриптов
+/tmp/original_mac_*.txt
+/tmp/mac_history_*.txt
+/tmp/mac_backup_*.txt
+/tmp/mac_changer_rate_*.txt
+
+# Системные файлы
+/var/log/mac_changer*.log
+/var/run/mac_changer.pid
+/var/run/mac_changer_rate.txt
+/var/run/mac_backup_*.txt
+/var/lib/mac_changer/
+
+# Логи (если создаются локально)
+*.log
+
+# Резервные копии
+*.bak
+*.backup
+*~
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Временные файлы тестирования
+test_*
+temp_*
