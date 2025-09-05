@@ -74,7 +74,7 @@ validate_mac_address() {
     )
     
     for reserved in "${reserved_macs[@]}"; do
-        if [[ "$mac" == $reserved ]]; then
+        if [[ "$mac" == "$reserved" ]]; then
             print_error "MAC-адрес зарезервирован: $mac"
             return 1
         fi
@@ -92,7 +92,8 @@ check_file_permissions() {
         return 1
     fi
     
-    local perms=$(stat -f "%OLp" "$file" 2>/dev/null)
+    local perms
+    perms=$(stat -f "%OLp" "$file" 2>/dev/null)
     if [ "$perms" != "$required_perms" ]; then
         print_warning "Небезопасные права доступа к файлу $file: $perms (требуется: $required_perms)"
         return 1
@@ -109,7 +110,8 @@ check_rate_limit() {
     local time_window="$3"
     local rate_file="/tmp/mac_changer_rate_${operation}.txt"
     
-    local current_time=$(date +%s)
+    local current_time
+    current_time=$(date +%s)
     local cutoff_time=$((current_time - time_window))
     
     # Очищаем старые записи
@@ -246,7 +248,8 @@ change_mac() {
     print_message "Новый MAC:  $new_mac"
     
     # Создаем резервную копию текущего состояния
-    local backup_file="/tmp/mac_backup_${interface}_$(date +%s).txt"
+    local backup_file
+    backup_file="/tmp/mac_backup_${interface}_$(date +%s).txt"
     ifconfig "$interface" > "$backup_file" 2>/dev/null
     
     # Отключаем интерфейс

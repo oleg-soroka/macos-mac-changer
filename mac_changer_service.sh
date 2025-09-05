@@ -82,7 +82,7 @@ validate_mac_address() {
     )
     
     for reserved in "${reserved_macs[@]}"; do
-        if [[ "$mac" == $reserved ]]; then
+        if [[ "$mac" == "$reserved" ]]; then
             log_message "ERROR" "MAC-адрес зарезервирован: $mac"
             return 1
         fi
@@ -98,7 +98,8 @@ check_service_rate_limit() {
     local time_window=3600  # 1 час
     local rate_file="/var/run/mac_changer_rate.txt"
     
-    local current_time=$(date +%s)
+    local current_time
+    current_time=$(date +%s)
     local cutoff_time=$((current_time - time_window))
     
     # Очищаем старые записи
@@ -185,7 +186,8 @@ change_mac() {
     fi
     
     # Создаем резервную копию состояния интерфейса
-    local backup_file="/var/run/mac_backup_${interface}_$(date +%s).txt"
+    local backup_file
+    backup_file="/var/run/mac_backup_${interface}_$(date +%s).txt"
     ifconfig "$interface" > "$backup_file" 2>/dev/null
     
     # Отключаем интерфейс
