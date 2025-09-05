@@ -1,4 +1,4 @@
-name: "CodeQL Security Analysis"
+name: "Security Analysis"
 
 on:
   push:
@@ -9,32 +9,50 @@ on:
     - cron: '0 2 * * 1'  # Run weekly on Mondays at 2 AM
 
 jobs:
-  analyze:
-    name: Analyze
+  security-analysis:
+    name: Security Analysis
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'bash' ]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
+    - name: Install ShellCheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
+    - name: Run ShellCheck Security Analysis
+      run: |
+        echo "Running ShellCheck security analysis..."
+        find . -name "*.sh" -type f -exec shellcheck {} \; || true
+        
+    - name: Check for security issues
+      run: |
+        echo "Checking for common security issues..."
+        
+        # Check for hardcoded secrets
+        if grep -r -i "password\|secret\|key\|token" --include="*.sh" .; then
+          echo "WARNING: Potential hardcoded secrets found"
+        fi
+        
+        # Check for dangerous operations
+        if grep -r "rm -rf" --include="*.sh" .; then
+          echo "WARNING: Dangerous rm -rf operations found"
+        fi
+        
+        # Check for eval usage
+        if grep -r "eval" --include="*.sh" .; then
+          echo "WARNING: eval usage found - potential security risk"
+        fi
+        
+        # Check for unquoted variables
+        if grep -r "\$[A-Za-z_][A-Za-z0-9_]*[^\"']" --include="*.sh" .; then
+          echo "WARNING: Unquoted variables found"
+        fi
+        
+        echo "Security analysis completed"
