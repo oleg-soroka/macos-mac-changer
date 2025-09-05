@@ -1,0 +1,47 @@
+name: Shell Script Security Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  shellcheck:
+    name: ShellCheck Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install ShellCheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+        
+    - name: Run ShellCheck on all shell scripts
+      run: |
+        echo "Running ShellCheck on all shell scripts..."
+        find . -name "*.sh" -type f -exec shellcheck {} \; || true
+        
+    - name: Check for security issues in shell scripts
+      run: |
+        echo "Checking for common security issues..."
+        
+        # Check for hardcoded passwords or secrets
+        if grep -r -i "password\|secret\|key\|token" --include="*.sh" .; then
+          echo "WARNING: Potential hardcoded secrets found"
+        fi
+        
+        # Check for unsafe file operations
+        if grep -r "rm -rf" --include="*.sh" .; then
+          echo "WARNING: Dangerous rm -rf operations found"
+        fi
+        
+        # Check for eval usage
+        if grep -r "eval" --include="*.sh" .; then
+          echo "WARNING: eval usage found - potential security risk"
+        fi
+        
+        echo "Security check completed"
